@@ -3,6 +3,7 @@ import { configDotenv } from "dotenv";
 import AdminRouter from "./routes/admin.routes.js";
 import TrainersRouter from "./routes/trainees.routes.js";
 import TraineesRouter from "./routes/trainees.routes.js";
+import AuthRouter from "./routes/auth.routes.js";
 import cors from "cors";
 
 configDotenv();
@@ -13,6 +14,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/auth", AuthRouter)
 app.use("/admin", AdminRouter);
 app.use("/trainers", TrainersRouter);
 app.use("/trainees", TraineesRouter);
