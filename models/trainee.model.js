@@ -45,9 +45,8 @@ const Trainee = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-      is: /^(\+8801|8801|01)[3-9]\d{8}$/,
-    },
-      unique: true,
+        is: /^(\+8801|8801|01)[3-9]\d{8}$/,
+      }
     },
     password: {
       type: DataTypes.STRING,
