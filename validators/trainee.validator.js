@@ -8,5 +8,6 @@ export const traineeSignupSchema = Joi.object({
     workplace: Joi.string().required(),
     phone: Joi.string()
         .pattern(/^(?:\+88|88)?01[3-9]\d{8}$/)
-        .message("Enter a valid BD phone number!")
+        .message("Enter a valid BD phone number!"),
+    password: Joi.string().min(4).required()
 });

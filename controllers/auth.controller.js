@@ -1,3 +1,5 @@
+import Trainee from "../models/trainee.model.js";
+import { hashPassword, comparePassword } from "../utils/hashPassword.js";
 // admin
 export function adminSignin(req, res) {
     res.status(201).json({msg: "Admin singin"})
@@ -27,6 +29,17 @@ export function traineeSignin(req, res) {
     }
 }
 
-export function traineeSignup(req, res) {
-    res.status(201).json({msg: "trainee signup"})
+export async function traineeSignup(req, res) {
+    try {
+        const { firstName, lastName, email, workplace, phone, password } = req.body;
+        const hashedPassword = hashPassword(password);
+        const trainee = await Trainee.findOne(email);
+        if(trainee) {
+            return res.status(400).json({msg: "Trainee already exists!"});
+        }
+        res.status(201).json({ msg: "trainee signup" })
+    } catch (err) {
+        res.status(500).json({msg: "Server error!"});
+        console.log(err)
+    }
 }

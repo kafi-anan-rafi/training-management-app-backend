@@ -10,7 +10,7 @@ router.post("/admin/signup", adminSignup);
 router.post("/trainer/signin", trainerSignin);
 router.post("/trainer/signup", trainerSignup);
 
-router.post("/trainee/signin", validateSchema(traineeSignupSchema), traineeSignin);
-router.post("/trainee/signup", traineeSignup);
+router.post("/trainee/signin", traineeSignin);
+router.post("/trainee/signup", validateSchema(traineeSignupSchema), traineeSignup);
 
 export default router;
