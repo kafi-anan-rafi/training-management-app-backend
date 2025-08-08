@@ -20,10 +20,19 @@ export function trainerSignup(req, res) {
 }
 
 // trainee
-export function traineeSignin(req, res) {
+export async function traineeSignin(req, res) {
     try {
         const { email, password } = req.body;
-        res.status(201).json({ msg: "trainee signin" })
+        const existingTrainees = await Trainee.findOne({where: { email }});
+        if (!existingTrainees) {
+            return res.status(404).json({ msg: "Trainee not found!" });
+        }
+        const isMatch = await comparePassword(password, existingTrainees.password);
+        if (!isMatch) {
+            return res.status(401).json({ msg: "Invalid credentials!" });
+        }
+        const token = generateToken(existingTrainees.toJSON());
+        res.status(200).json({ msg: "Trainee signed in", token });
     } catch (err) {
         res.status(500).json({msg: "Server error!"});
         console.log(err)

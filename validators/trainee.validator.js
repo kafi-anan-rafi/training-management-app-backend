@@ -11,3 +11,8 @@ export const traineeSignupSchema = Joi.object({
         .message("Enter a valid BD phone number!"),
     password: Joi.string().min(4).required()
 });
+
+export const traineeSigninSchema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().min(4).required()
+});
