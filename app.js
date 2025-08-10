@@ -6,6 +6,7 @@ import TraineesRouter from "./routes/trainees.routes.js";
 import AuthRouter from "./routes/auth.routes.js";
 import { connectDB } from "./configs/dbConfig.js";
 import cors from "cors";
+import cookieParser from 'cookie-parser';
 
 configDotenv();
 
@@ -13,6 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 await connectDB();
 
+app.use(cookieParser());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

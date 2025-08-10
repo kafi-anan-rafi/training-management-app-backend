@@ -1,6 +1,6 @@
 import Trainee from "../models/trainee.model.js";
 import { hashPassword, comparePassword } from "../utils/hashPassword.js";
-import { generateToken } from "../utils/token.js";
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/token.js";
 // admin
 export function adminSignin(req, res) {
     res.status(201).json({msg: "Admin singin"})
@@ -31,10 +31,19 @@ export async function traineeSignin(req, res) {
         if (!isMatch) {
             return res.status(401).json({ msg: "Invalid credentials!" });
         }
-        const token = generateToken(existingTrainees.toJSON());
-        res.status(200).json({ msg: "Trainee signed in", token });
+        const accessToken = generateAccessToken(existingTrainees.toJSON());
+        const refreshToken = generateRefreshToken(existingTrainees.toJSON());
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 
+        });
+
+        return res.status(200).json({ msg: "Trainee signed in", accessToken });
     } catch (err) {
-        res.status(500).json({msg: "Server error!"});
+        return res.status(500).json({msg: "Server error!"});
         console.log(err)
     }
 }
@@ -57,10 +66,25 @@ export async function traineeSignup(req, res) {
             phone,
             password: hashedPassword
         });
-        const token = generateToken(newTrainee.toJSON());
-        res.status(201).json({ msg: "trainee signup", token });
+        const token = generateAccessToken(newTrainee.toJSON());
+        return res.status(201).json({ msg: "trainee signup", token });
     } catch (err) {
-        res.status(500).json({msg: "Server error!"});
-        console.log(err)
+        console.log(err);
+        return res.status(500).json({msg: "Server error!"});
     }
 }
+
+export async function refreshToken(req, res) {
+  const token = req.cookies.refreshToken;
+  console.log(token);
+
+  if (!token) return res.status(401).json({ msg: 'No refresh token provided' });
+
+  try {
+    const decoded = verifyRefreshToken(token);
+    const newAccessToken = generateAccessToken({ id: decoded.id, email: decoded.email, name: decoded.name });
+    res.json({ token: newAccessToken });
+  } catch (err) {
+    return res.status(403).json({ error: 'Invalid refresh token' });
+  }
+};
