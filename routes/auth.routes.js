@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { validateSchema } from '../middlewares/validate.middleware.js';
+import { validate } from '../middlewares/validate.middleware.js';
 import { adminSignin, adminSignup, traineeSignin, traineeSignup, trainerSignin, trainerSignup, refreshToken } from '../controllers/auth.controller.js';
 import { traineeSignupSchema, traineeSigninSchema } from '../validators/trainee.validator.js';
 import { trainerSigninSchema, trainerSignupSchema } from '../validators/trainer.validator.js';
@@ -7,14 +7,14 @@ import { adminSigninSchema, adminSignupSchema } from '../validators/admin.valida
 
 const router = Router();
 
-router.post("/admin/signin", validateSchema(adminSigninSchema), adminSignin);
-router.post("/admin/signup", validateSchema(adminSignupSchema), adminSignup);
+router.post("/admin/signin", validate(adminSigninSchema), adminSignin);
+router.post("/admin/signup", validate(adminSignupSchema), adminSignup);
 
-router.post("/trainer/signin", validateSchema(trainerSigninSchema), trainerSignin);
-router.post("/trainer/signup", validateSchema(trainerSignupSchema), trainerSignup);
+router.post("/trainer/signin", validate(trainerSigninSchema), trainerSignin);
+router.post("/trainer/signup", validate(trainerSignupSchema), trainerSignup);
 
-router.post("/trainee/signin", validateSchema(traineeSigninSchema), traineeSignin);
-router.post("/trainee/signup", validateSchema(traineeSignupSchema), traineeSignup);
+router.post("/trainee/signin", validate(traineeSigninSchema), traineeSignin);
+router.post("/trainee/signup", validate(traineeSignupSchema), traineeSignup);
 
 router.post("/refresh-token", refreshToken);
 
