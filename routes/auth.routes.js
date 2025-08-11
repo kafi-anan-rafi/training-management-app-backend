@@ -3,11 +3,12 @@ import { validateSchema } from '../middlewares/validate.middleware.js';
 import { adminSignin, adminSignup, traineeSignin, traineeSignup, trainerSignin, trainerSignup, refreshToken } from '../controllers/auth.controller.js';
 import { traineeSignupSchema, traineeSigninSchema } from '../validators/trainee.validator.js';
 import { trainerSigninSchema, trainerSignupSchema } from '../validators/trainer.validator.js';
+import { adminSigninSchema, adminSignupSchema } from '../validators/admin.validator.js';
 
 const router = Router();
 
-router.post("/admin/signin", adminSignin);
-router.post("/admin/signup", adminSignup);
+router.post("/admin/signin", validateSchema(adminSigninSchema), adminSignin);
+router.post("/admin/signup", validateSchema(adminSignupSchema), adminSignup);
 
 router.post("/trainer/signin", validateSchema(trainerSigninSchema), trainerSignin);
 router.post("/trainer/signup", validateSchema(trainerSignupSchema), trainerSignup);
