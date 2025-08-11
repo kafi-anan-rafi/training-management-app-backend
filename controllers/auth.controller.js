@@ -7,10 +7,6 @@ export function adminSignin(req, res) {
     res.status(201).json({msg: "Admin singin"})
 }
 
-export function adminSignup(req, res) {
-    res.status(201).json({msg: "Admin signup"})
-}
-
 // trainer
 export async function trainerSignin(req, res) {
     try {
