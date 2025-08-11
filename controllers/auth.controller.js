@@ -1,4 +1,5 @@
 import Trainee from "../models/trainee.model.js";
+import Trainer from "../models/trainer.model.js";
 import { hashPassword, comparePassword } from "../utils/hashPassword.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/token.js";
 // admin
@@ -11,8 +12,32 @@ export function adminSignup(req, res) {
 }
 
 // trainer
-export function trainerSignin(req, res) {
-    res.status(201).json({msg: "trainer signin"})
+export async function trainerSignin(req, res) {
+    try {
+        const { email, password } = req.body;
+        const trainer = await Trainer.findOne({ where: { email } });
+        if (!trainer) {
+            return res.status(404).json({ msg: "Trainer not found!" });
+        }
+        const isMatch = await comparePassword(password, trainer.password);
+        if (!isMatch) {
+            return res.status(401).json({ msg: "Invalid credentials!" });
+        }
+        const token = generateAccessToken(trainer.toJSON());
+        const refreshToken = generateRefreshToken(trainer.toJSON());
+
+        res.cookie('refreshToken', refreshToken, { 
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        })
+
+        return res.status(200).json({ msg: "Trainer signed in", token });
+    } catch (err) {
+        console.log(err); 
+        return res.status(500).json({ msg: "Server error!" });
+    }
 }
 
 export function trainerSignup(req, res) {
@@ -31,7 +56,7 @@ export async function traineeSignin(req, res) {
         if (!isMatch) {
             return res.status(401).json({ msg: "Invalid credentials!" });
         }
-        const accessToken = generateAccessToken(existingTrainees.toJSON());
+        const token = generateAccessToken(existingTrainees.toJSON());
         const refreshToken = generateRefreshToken(existingTrainees.toJSON());
 
         res.cookie('refreshToken', refreshToken, {
@@ -41,7 +66,7 @@ export async function traineeSignin(req, res) {
             maxAge: 7 * 24 * 60 * 60 * 1000 
         });
 
-        return res.status(200).json({ msg: "Trainee signed in", accessToken });
+        return res.status(200).json({ msg: "Trainee signed in", token });
     } catch (err) {
         console.log(err)
         return res.status(500).json({msg: "Server error!"});
@@ -67,6 +92,14 @@ export async function traineeSignup(req, res) {
             password: hashedPassword
         });
         const token = generateAccessToken(newTrainee.toJSON());
+        const refreshToken = generateRefreshToken(newTrainee.toJSON());
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 
+        });
         return res.status(201).json({ msg: "trainee signup", token });
     } catch (err) {
         console.log(err);
