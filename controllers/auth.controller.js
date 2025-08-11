@@ -43,8 +43,8 @@ export async function traineeSignin(req, res) {
 
         return res.status(200).json({ msg: "Trainee signed in", accessToken });
     } catch (err) {
-        return res.status(500).json({msg: "Server error!"});
         console.log(err)
+        return res.status(500).json({msg: "Server error!"});
     }
 }
 
