@@ -15,8 +15,8 @@ export async function adminSignin(req, res) {
         if (!isMatch) {
             return res.status(401).json({ msg: "Invalid credentials!" });
         }
-        const token = generateAccessToken(admin.toJSON());
-        const refreshToken = generateRefreshToken(admin.toJSON());
+        const token = generateAccessToken(admin.toJSON(), "admin");
+        const refreshToken = generateRefreshToken(admin.toJSON(), "admin");
         
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true, 
@@ -47,8 +47,8 @@ export async function adminSignup(req, res) {
             phone,
             password: hashedPassword
         });
-        const token = generateAccessToken(newAdmin.toJSON());
-        const refreshToken = generateRefreshToken(newAdmin.toJSON());
+        const token = generateAccessToken(newAdmin.toJSON(), "admin");
+        const refreshToken = generateRefreshToken(newAdmin.toJSON(), "admin");
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
@@ -75,8 +75,8 @@ export async function trainerSignin(req, res) {
         if (!isMatch) {
             return res.status(401).json({ msg: "Invalid credentials!" });
         }
-        const token = generateAccessToken(trainer.toJSON());
-        const refreshToken = generateRefreshToken(trainer.toJSON());
+        const token = generateAccessToken(trainer.toJSON(), "trainer");
+        const refreshToken = generateRefreshToken(trainer.toJSON(), "trainer");
 
         res.cookie('refreshToken', refreshToken, { 
             httpOnly: true,
@@ -109,8 +109,8 @@ export async function trainerSignup(req, res) {
             phone,
             password: hashedPassword
         });
-        const token = generateAccessToken(newTrainer.toJSON());
-        const refreshToken = generateRefreshToken(newTrainer.toJSON());
+        const token = generateAccessToken(newTrainer.toJSON(), "trainer");
+        const refreshToken = generateRefreshToken(newTrainer.toJSON(), "trainer");
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
@@ -137,8 +137,8 @@ export async function traineeSignin(req, res) {
         if (!isMatch) {
             return res.status(401).json({ msg: "Invalid credentials!" });
         }
-        const token = generateAccessToken(existingTrainees.toJSON());
-        const refreshToken = generateRefreshToken(existingTrainees.toJSON());
+        const token = generateAccessToken(existingTrainees.toJSON(), "trainee");
+        const refreshToken = generateRefreshToken(existingTrainees.toJSON(), "trainee");
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
@@ -172,8 +172,8 @@ export async function traineeSignup(req, res) {
             phone,
             password: hashedPassword
         });
-        const token = generateAccessToken(newTrainee.toJSON());
-        const refreshToken = generateRefreshToken(newTrainee.toJSON());
+        const token = generateAccessToken(newTrainee.toJSON(), "trainee");
+        const refreshToken = generateRefreshToken(newTrainee.toJSON(), "trainee");
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
@@ -196,7 +196,7 @@ export async function refreshToken(req, res) {
 
   try {
     const decoded = verifyRefreshToken(token);
-    const newAccessToken = generateAccessToken({ id: decoded.id, email: decoded.email, name: decoded.name });
+    const newAccessToken = generateAccessToken({ id: decoded.id, email: decoded.email, name: decoded.name, role: decoded.role });
     res.json({ token: newAccessToken });
   } catch (err) {
     return res.status(403).json({ error: 'Invalid refresh token' });

@@ -12,12 +12,14 @@ if (!JWT_ACCESS_SECRET || !JWT_REFRESH_SECRET) {
     throw new Error("Missing JWT secrets in environment variables");
 }
 
-export function generateAccessToken(user) {
+export function generateAccessToken(user, role) {
+    console.log(role);
     return jwt.sign(
         {
             id: user.id,
             email: user.email,
-            name: user.firstName + " " + user.lastName
+            name: user.firstName + " " + user.lastName,
+            role: role
         },
         JWT_ACCESS_SECRET,
         { expiresIn: JWT_ACCESS_EXPIRATION }
@@ -34,12 +36,13 @@ export function verifyAccessToken(token) {
 }
 
 
-export function generateRefreshToken(user) {
+export function generateRefreshToken(user, role) {
   return jwt.sign(
         {
             id: user.id,
             email: user.email,
-            name: user.firstName + " " + user.lastName
+            name: user.firstName + " " + user.lastName,
+            role: role
         },
         JWT_REFRESH_SECRET,
         { expiresIn: JWT_REFRESH_EXPIRATION }
