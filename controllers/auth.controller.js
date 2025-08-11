@@ -32,6 +32,37 @@ export async function adminSignin(req, res) {
     }
 }
 
+export async function adminSignup(req, res) {
+    try {
+        const { firstName, lastName, email, phone, password } = req.body;
+        const existingAdmin = await Admin.findOne({ where: { email } });
+        if (existingAdmin) {
+            return res.status(400).json({ msg: "Admin already exists!" });
+        }
+        const hashedPassword = await hashPassword(password);
+        const newAdmin = await Admin.create({
+            firstName,
+            lastName,
+            email,
+            phone,
+            password: hashedPassword
+        });
+        const token = generateAccessToken(newAdmin.toJSON());
+        const refreshToken = generateRefreshToken(newAdmin.toJSON());
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 
+        });
+        return res.status(201).json({ msg: "Admin signup", token });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ msg: "Server error!" });
+    }
+}
+
 // trainer
 export async function trainerSignin(req, res) {
     try {
