@@ -40,8 +40,37 @@ export async function trainerSignin(req, res) {
     }
 }
 
-export function trainerSignup(req, res) {
-    res.status(201).json({msg: "trainer signup"})
+export async function trainerSignup(req, res) {
+    try {
+        const { firstName, lastName, email, workplace, designation, phone, password } = req.body;
+        const existingTrainer = await Trainer.findOne({ where: { email } });
+        if (existingTrainer) {
+            return res.status(400).json({ msg: "Trainer already exists!" });
+        }
+        const hashedPassword = await hashPassword(password);
+        const newTrainer = await Trainer.create({
+            firstName,
+            lastName,
+            email,
+            workplace,
+            designation,
+            phone,
+            password: hashedPassword
+        });
+        const token = generateAccessToken(newTrainer.toJSON());
+        const refreshToken = generateRefreshToken(newTrainer.toJSON());
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: false,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 
+        });
+        return res.status(201).json({ msg: "Trainer signup", token });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({msg: "Server error!"} );        
+    }
 }
 
 // trainee
