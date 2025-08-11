@@ -1,10 +1,35 @@
 import Trainee from "../models/trainee.model.js";
 import Trainer from "../models/trainer.model.js";
+import Admin from "../models/admin.model.js";
 import { hashPassword, comparePassword } from "../utils/hashPassword.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/token.js";
 // admin
-export function adminSignin(req, res) {
-    res.status(201).json({msg: "Admin singin"})
+export async function adminSignin(req, res) {
+    try {
+        const { email, password } = req.body;
+        const admin = await Admin.findOne({ where: { email } })
+        if (!admin) {
+            return res.status(404).json({ msg: "Admin not found!" });
+        }
+        const isMatch = await comparePassword(password, admin.password);
+        if (!isMatch) {
+            return res.status(401).json({ msg: "Invalid credentials!" });
+        }
+        const token = generateAccessToken(admin.toJSON());
+        const refreshToken = generateRefreshToken(admin.toJSON());
+        
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true, 
+            secure: false,
+            sameSite: 'strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        return res.status(200).json({ msg: "Admin signed in", token });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ msg: "Server error!" });
+    }
 }
 
 // trainer
